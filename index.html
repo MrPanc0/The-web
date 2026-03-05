@@ -3,103 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cluster3D - 3D tisk a modelování</title>
-    <meta name="description" content="Cluster3D poskytuje profesionální služby v oblasti 3D tisku a modelování.">
+    <title id="page-title">Cluster3D | Profi Služby</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class'
-        }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.0/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/3MFLoader.js"></script>
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-    <!-- Navigace -->
-    <nav class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-md sticky top-0 z-40 transition-colors">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            
-            <div id="brand-logo" class="text-2xl font-bold text-blue-600 dark:text-blue-500">Cluster<span class="text-gray-900 dark:text-white">3D</span></div>
-            
-            <div class="hidden lg:flex space-x-8 font-medium text-gray-600 dark:text-gray-300">
-                <a href="#kalkulace" id="nav-services" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Služby</a>
-                <a href="#galerie" id="nav-gallery" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Galerie</a>
-                <a href="#faq" id="nav-faq" class="hover:text-blue-600 dark:hover:text-blue-400 transition">FAQ</a>
-                <a href="#kontakt" id="nav-contact" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Kontakt</a>
-            </div>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-            <div class="flex items-center space-x-4">
-                
-                <div class="hidden xl:flex items-center space-x-4 text-sm font-medium text-gray-600 dark:text-gray-300 border-r border-gray-300 dark:border-gray-700 pr-4">
-                    <a href="mailto:info@cluster3d.cz" class="hover:text-blue-500 transition"><i class="fa-solid fa-envelope mr-1 text-blue-500"></i> info@cluster3d.cz</a>
-                    <a href="tel:+420123456789" class="hover:text-blue-500 transition"><i class="fa-solid fa-phone mr-1 text-blue-500"></i> +420 123 456 789</a>
-                </div>
+    <div id="app-navbar"></div>
+    <div id="app-header"></div>
+    <div id="app-services"></div>
+    <div id="app-gallery"></div>
+    <div id="app-faq"></div>
+    <div id="app-footer"></div>
+    <div id="app-modal"></div>
 
-                <div class="hidden md:flex space-x-3 text-gray-400 dark:text-gray-400 border-r border-gray-300 dark:border-gray-700 pr-4 mr-1">
-                    <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-instagram text-lg"></i></a>
-                    <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-facebook-f text-lg"></i></a>
-                    <a href="#" class="hover:text-blue-500 transition"><i class="fa-brands fa-linkedin-in text-lg"></i></a>
-                </div>
+    <script src="js/translations.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/cart.js"></script>
+    
+    <script src="js/core.js"></script>
 
-                <button id="lang-toggle" class="p-2 font-bold text-gray-600 dark:text-gray-300 hover:text-blue-600 transition">EN</button>
-                <button id="dark-mode-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 transition">
-                    <i id="dark-icon" class="fa-solid fa-moon text-gray-600 dark:text-yellow-400"></i>
-                </button>
-            </div>
-
-        </div>
-    </nav>
-
-    <!-- Hlavní obsah -->
-    <main class="container mx-auto px-6 py-8">
-        <!-- Přidej sem další sekce (Služby, Galerie, FAQ, Kontakt) -->
-    </main>
-
-    <!-- Skript pro dark mode toggle -->
-    <script>
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        const darkIcon = document.getElementById('dark-icon');
-        const html = document.documentElement;
-
-        // Zkontroluj uložené nastavení
-        if (localStorage.getItem('darkMode') === 'true' || 
-            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-            darkIcon.classList.remove('fa-moon');
-            darkIcon.classList.add('fa-sun');
-        }
-
-        // Dark mode toggle
-        darkModeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('darkMode', isDark);
-            
-            if (isDark) {
-                darkIcon.classList.remove('fa-moon');
-                darkIcon.classList.add('fa-sun');
-            } else {
-                darkIcon.classList.remove('fa-sun');
-                darkIcon.classList.add('fa-moon');
-            }
-        });
-
-        // Jazykový přepínač
-        const langToggle = document.getElementById('lang-toggle');
-        langToggle.addEventListener('click', () => {
-            const currentLang = langToggle.textContent === 'EN' ? 'CZ' : 'EN';
-            langToggle.textContent = currentLang;
-            // Sem přidej logiku pro přepínání jazyka
-        });
-    </script>
 </body>
 </html>
