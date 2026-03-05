@@ -1,10 +1,17 @@
-// Tmavý režim
-document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
-    const icon = document.getElementById('dark-icon');
-    icon.classList.toggle('fa-moon');
-    icon.classList.toggle('fa-sun');
-});
+// Inicializace posluchačů pro UI (Zavolá to core.js až po načtení HTML)
+function initUIListeners() {
+    const toggleBtn = document.getElementById('dark-mode-toggle');
+    if(toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('dark-icon');
+            if(icon) {
+                icon.classList.toggle('fa-moon');
+                icon.classList.toggle('fa-sun');
+            }
+        });
+    }
+}
 
 // Taby a Pozadí
 const bgImages = {
