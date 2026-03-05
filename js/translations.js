@@ -11,6 +11,8 @@ const translations = {
         orderBtnPrint: "Přejít k objednávce", orderBtnModel: "Přejít k objednávce", orderBtnScan: "Přejít k objednávce", loadingText: "Zpracovávám 3D model...", alertStl: "Podporované formáty jsou .stl, .obj, .3mf", alertParse: "Soubor je poškozený nebo nepodporovaný.",
         modelTitle: "3D Modelování na zakázku", modelDesc: "Máte nápad, součástku nebo technický výkres? Převedeme vaše představy do 3D modelu.", modelRateLabel: "Hodinová sazba",
         scanTitle: "Profesionální 3D Skenování", scanDesc: "Potřebujete zkopírovat reálný objekt? Digitalizujeme s maximální přesností.", scanNoteUi: "<i class='fa-solid fa-circle-info text-blue-500 mr-2'></i>Typ skeneru si vyberete v dalším kroku.",
+        scanIrDesc: "Vhodné pro střední a větší objekty, sochy či díly. Standardní rozlišení s přesností až 0.1 mm.",
+        scanLaserDesc: "Ideální pro technické díly, reverzní inženýrství a jemné detaily. Extrémní přesnost až 0.02 mm.",
         galleryTitle: "Naše práce", faqTitle: "Často kladené dotazy", faqQ1: "Jak dlouho trvá výroba?", faqA1: "Standardní objednávky expedujeme do 48 hodin.", faqQ2: "Jaké jsou maximální rozměry tisku?", faqA2: "Náš největší tiskový objem je 300 x 300 x 400 mm.", faqQ3: "Můžete mi pomoci s návrhem modelu?", faqA3: "Ano! Nabízíme i drobné úpravy.", footerDesc: "Profesionální zakázkový 3D tisk a modelování.", contactTitle: "Kontakt", socialTitle: "Sledujte nás",
         modalTitle: "Odeslat poptávku", cartTitle: "Položky poptávky:", cartLblPrint: "3D Tisk", cartLblModel: "3D Modelování", cartLblScan: "3D Skenování",
         cartOptScanIr: "Infračervené (500 Kč/h)", cartOptScanLaser: "Modrý laser (1500 Kč/h)", 
@@ -29,6 +31,8 @@ const translations = {
         orderBtnPrint: "Proceed to Order", orderBtnModel: "Proceed to Order", orderBtnScan: "Proceed to Order", loadingText: "Processing 3D model...", alertStl: "Supported formats: .stl, .obj, .3mf", alertParse: "File is corrupted or unsupported.",
         modelTitle: "Custom 3D Modeling", modelDesc: "Have an idea, a part, or a drawing? We convert it into a 3D model.", modelRateLabel: "Hourly Rate",
         scanTitle: "Professional 3D Scanning", scanDesc: "Need to duplicate a real object? We digitize with max precision.", scanNoteUi: "<i class='fa-solid fa-circle-info text-blue-500 mr-2'></i>Select scanner type in the next step.",
+        scanIrDesc: "Suitable for medium and large objects, sculptures, or parts. Standard resolution with up to 0.1 mm accuracy.",
+        scanLaserDesc: "Ideal for technical parts, reverse engineering, and fine details. Extreme accuracy up to 0.02 mm.",
         galleryTitle: "Our Work", faqTitle: "FAQ", faqQ1: "How long does production take?", faqA1: "We ship standard orders within 48 hours.", faqQ2: "What are the max print dimensions?", faqA2: "Our largest volume is 300 x 300 x 400 mm.", faqQ3: "Can you help with model design?", faqA3: "Yes! We offer modifications too.", footerDesc: "Professional custom 3D printing and modeling.", contactTitle: "Contact Us", socialTitle: "Follow Us",
         modalTitle: "Submit Request", cartTitle: "Your Cart Items:", cartLblPrint: "3D Printing", cartLblModel: "3D Modeling", cartLblScan: "3D Scanning",
         cartOptScanIr: "Infrared (500 CZK/h)", cartOptScanLaser: "Blue Laser (1500 CZK/h)", 
@@ -60,7 +64,7 @@ function applyTranslations() {
         'loading-text', 'model-title', 'model-desc', 'model-rate-label', 'scan-title', 'scan-desc', 'gallery-title', 'faq-title', 
         'faq-q1', 'faq-a1', 'faq-q2', 'faq-a2', 'faq-q3', 'faq-a3', 'footer-desc', 'contact-title', 'social-title', 'modal-title', 
         'cart-title', 'cart-lbl-print', 'cart-lbl-model', 'cart-lbl-scan', 'cart-opt-scan-ir', 'cart-opt-scan-laser', 
-        'cart-opt-scan-ir-ui', 'cart-opt-scan-laser-ui', 'lbl-add-print', 'lbl-add-model', 'lbl-add-scan', 'modal-name', 'modal-email', 
+        'cart-opt-scan-ir-ui', 'cart-opt-scan-laser-ui', 'scan-ir-desc', 'scan-laser-desc', 'lbl-add-print', 'lbl-add-model', 'lbl-add-scan', 'modal-name', 'modal-email', 
         'modal-note', 'modal-submit-btn', 'modal-file-label'
     ];
     
@@ -76,9 +80,11 @@ function applyTranslations() {
     setTxt('tab-btn-print', 'tabPrint');
     setTxt('tab-btn-model', 'tabModel');
     setTxt('tab-btn-scan', 'tabScan');
+
     setHtml('hero-title', 'heroTitle');
     setHtml('section-title', 'sectionTitle');
     setHtml('scan-note-ui', 'scanNoteUi');
+    
     setTxt('infill-warning', 'infillWarning');
     setTxt('warn-add-print', 'warnAddPrint');
     
