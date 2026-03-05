@@ -1,0 +1,126 @@
+    <section id="kalkulace" class="py-16 relative transition-colors min-h-[800px] flex items-center">
+        <div id="section-bg" class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('Resin-3D-Printing-vs-Filament-3D-Printing-1.jpg');"></div>
+        <div class="absolute inset-0 bg-white/40 dark:bg-gray-900/70 z-0 transition-colors duration-300"></div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <button id="tab-btn-print" onclick="switchTab('print')" class="px-8 py-3 rounded-full font-bold bg-blue-600 text-white shadow-lg transition transform hover:-translate-y-0.5 border border-blue-500/50 backdrop-blur-sm">3D Tisk</button>
+                <button id="tab-btn-model" onclick="switchTab('model')" class="px-8 py-3 rounded-full font-bold bg-white/80 text-gray-800 dark:bg-gray-800/80 dark:text-gray-200 shadow border border-white/30 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-700 transition transform hover:-translate-y-0.5 backdrop-blur-sm">3D Modelování</button>
+                <button id="tab-btn-scan" onclick="switchTab('scan')" class="px-8 py-3 rounded-full font-bold bg-white/80 text-gray-800 dark:bg-gray-800/80 dark:text-gray-200 shadow border border-white/30 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-700 transition transform hover:-translate-y-0.5 backdrop-blur-sm">3D Skenování</button>
+            </div>
+
+            <div id="tab-content-print" class="max-w-5xl mx-auto bg-white/85 dark:bg-gray-800/85 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 dark:border-gray-600/50 overflow-hidden flex flex-col md:flex-row transition-all duration-300">
+                <div class="p-8 md:w-3/5 border-b md:border-b-0 md:border-r border-gray-200/50 dark:border-gray-600/50">
+                    <h2 id="section-title" class="text-2xl font-bold mb-6 text-blue-700 dark:text-blue-400"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Nahrajte model</h2>
+                    
+                    <div id="drop-zone" class="border-4 border-dashed border-blue-300/60 dark:border-gray-500/60 rounded-2xl p-8 text-center hover:border-blue-500 transition cursor-pointer mb-6 bg-blue-50/50 dark:bg-gray-900/50 relative">
+                        <input type="file" id="file-input" accept=".stl,.obj,.3mf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <i class="fa-solid fa-cube text-4xl text-blue-500 mb-3"></i>
+                        <p id="drop-text" class="text-lg font-medium dark:text-gray-200 file-name-display">Přetáhněte 3D soubor (STL, OBJ, 3MF) sem</p>
+                        <p id="drop-sub" class="text-sm text-gray-600 dark:text-gray-400 mt-1">Vypočítáme objem automaticky</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label id="label-units" class="block text-sm font-semibold mb-2 dark:text-gray-300">Jednotky</label>
+                            <select id="units" class="w-full p-3 rounded-xl border bg-white/90 dark:bg-gray-900/90 dark:text-white outline-none">
+                                <option value="mm" id="opt-mm">Milimetry (mm)</option>
+                                <option value="cm" id="opt-cm">Centimetry (cm)</option>
+                                <option value="m" id="opt-m">Metry (m)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label id="label-infill" class="block text-sm font-semibold mb-2 dark:text-gray-300">Pevnost (Výplň)</label>
+                            <select id="infill" class="w-full p-3 rounded-xl border bg-white/90 dark:bg-gray-900/90 dark:text-white outline-none">
+                                <option value="0.25" id="opt-inf-25">Okrasný</option>
+                                <option value="0.40" id="opt-inf-40" selected>Málo namáhaný</option>
+                                <option value="0.70" id="opt-inf-70">Namáhaný</option>
+                                <option value="1.00" id="opt-inf-100">Plný</option>
+                            </select>
+                            <p id="infill-warning" class="text-xs text-orange-600 mt-1 hidden font-bold">Malý díl vyžaduje plnou výplň.</p>
+                        </div>
+                        <div>
+                            <label id="label-material" class="block text-sm font-semibold mb-2 dark:text-gray-300">Materiál</label>
+                            <select id="material" class="w-full p-3 rounded-xl border bg-white/90 dark:bg-gray-900/90 dark:text-white outline-none">
+                                <option value="2.0">PLA</option>
+                                <option value="2.0">PET-G</option>
+                                <option value="3.5">ASA</option>
+                                <option value="3.5">ABS</option>
+                                <option value="6.0">Resin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label id="label-pieces" class="block text-sm font-semibold mb-2 dark:text-gray-300">Počet kusů</label>
+                            <input type="number" id="pieces" value="1" min="1" class="w-full p-3 rounded-xl border bg-white/90 dark:bg-gray-900/90 dark:text-white outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8 md:w-2/5 bg-blue-50/40 dark:bg-gray-900/40 flex flex-col justify-center items-center text-center relative">
+                    <div id="loading" class="hidden absolute inset-0 bg-blue-50/90 dark:bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+                        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-blue-600 mb-2"></i>
+                        <p id="loading-text" class="font-medium mt-2">Zpracovávám 3D model...</p>
+                    </div>
+
+                    <p id="est-price-label" class="text-gray-700 dark:text-gray-300 mb-2 font-bold">Odhadovaná cena tisku</p>
+                    <div class="text-6xl font-black text-blue-700 dark:text-blue-400 mb-2">
+                        <span id="total-price">0</span> <small class="text-2xl">Kč</small>
+                    </div>
+                    
+                    <div class="bg-white/80 dark:bg-gray-800/80 w-full rounded-xl p-4 mt-4 shadow-sm text-sm text-left border">
+                        <div class="flex justify-between mb-1">
+                            <span id="net-volume-label" class="text-gray-700 dark:text-gray-300">Čistý objem k tisku:</span>
+                            <span class="font-bold"><span id="volume-display">0.00</span> cm³</span>
+                        </div>
+                        <div id="discount-row" class="flex justify-between mb-1 hidden text-green-700 dark:text-green-400">
+                            <span id="discount-label">Množstevní sleva:</span>
+                            <span class="font-bold" id="discount-display">- 0 %</span>
+                        </div>
+                        <div id="fee-row" class="flex justify-between mb-1 text-gray-700 dark:text-gray-300">
+                            <span id="fee-label">Manipulační poplatek:</span>
+                            <span class="font-bold transition-colors" id="fee-display">50 Kč</span>
+                        </div>
+                    </div>
+
+                    <button onclick="openCartModal('print')" id="order-btn-print" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">
+                        Přejít k objednávce
+                    </button>
+                </div>
+            </div>
+
+            <div id="tab-content-model" class="hidden max-w-4xl mx-auto bg-white/85 dark:bg-gray-800/85 backdrop-blur-xl rounded-3xl shadow-2xl p-12 text-center transition-all duration-300 border border-white/40 dark:border-gray-600/50">
+                <h3 id="model-title" class="text-3xl font-bold mb-4 dark:text-white">3D Modelování na zakázku</h3>
+                <p id="model-desc" class="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto font-medium">Máte nápad, součástku nebo výkres? Převedeme vaše představy do 3D modelu.</p>
+                <div class="inline-block bg-white/70 dark:bg-gray-900/60 rounded-2xl p-6 px-12 mb-8 shadow-sm border border-white/50 dark:border-gray-600/50">
+                    <p id="model-rate-label" class="text-gray-600 dark:text-gray-400 font-bold mb-1">Hodinová sazba</p>
+                    <div class="text-5xl font-black text-blue-700 dark:text-blue-400">350 <small class="text-2xl">Kč / h</small></div>
+                </div>
+                <button onclick="openCartModal('model')" id="order-btn-model" class="block w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">Přejít k objednávce</button>
+            </div>
+
+            <div id="tab-content-scan" class="hidden max-w-4xl mx-auto bg-white/85 dark:bg-gray-800/85 backdrop-blur-xl rounded-3xl shadow-2xl p-12 text-center transition-all duration-300 border border-white/40 dark:border-gray-600/50">
+                <h3 id="scan-title" class="text-3xl font-bold mb-4 dark:text-white">Profesionální 3D Skenování</h3>
+                <p id="scan-desc" class="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto font-medium">Potřebujete zkopírovat reálný objekt? Digitalizujeme součástky s maximální přesností.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-80 cursor-default">
+                        <i class="fa-solid fa-bolt text-3xl text-blue-500 mb-3"></i>
+                        <h4 class="font-bold text-xl mb-1 dark:text-white" id="cart-opt-scan-ir-ui">Infračervené</h4>
+                        <p class="text-2xl font-black text-blue-600">500 <small class="text-sm text-gray-500">Kč / h</small></p>
+                    </div>
+
+                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-80 cursor-default">
+                        <i class="fa-solid fa-microscope text-3xl text-blue-500 mb-3"></i>
+                        <h4 class="font-bold text-xl mb-1 dark:text-white" id="cart-opt-scan-laser-ui">Modrý laser</h4>
+                        <p class="text-2xl font-black text-blue-600">1500 <small class="text-sm text-gray-500">Kč / h</small></p>
+                    </div>
+                </div>
+
+                <div class="mb-8 p-4 bg-blue-50/50 dark:bg-gray-900/50 rounded-xl inline-block border border-blue-200/50 dark:border-gray-600/50">
+                    <p id="scan-note-ui" class="text-gray-700 dark:text-gray-300 font-semibold"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>Typ skeneru si vyberete v dalším kroku objednávky.</p>
+                </div>
+
+                <button onclick="openCartModal('scan')" id="order-btn-scan" class="block w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">Přejít k objednávce</button>
+            </div>
+        </div>
+    </section>

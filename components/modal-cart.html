@@ -1,0 +1,79 @@
+    <div id="order-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4 transition-opacity overflow-y-auto pt-20 pb-10">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden transform transition-all relative">
+            <div class="bg-blue-600 p-6 flex justify-between items-center text-white sticky top-0 z-10">
+                <h3 id="modal-title" class="text-xl font-bold">Odeslat poptávku</h3>
+                <button id="close-modal" class="text-white hover:text-gray-200 transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6 p-5 bg-blue-50/50 dark:bg-gray-700/50 rounded-xl border border-blue-100 dark:border-gray-600">
+                    <h4 id="cart-title" class="font-bold text-gray-900 dark:text-white mb-4 text-lg border-b border-gray-200 dark:border-gray-600 pb-2">Položky poptávky:</h4>
+                    
+                    <div id="cart-item-print" class="flex justify-between items-center mb-3 hidden">
+                        <div>
+                            <span class="font-bold text-gray-800 dark:text-gray-200" id="cart-lbl-print">3D Tisk</span>
+                            <span class="text-xs text-gray-500 block mt-0.5" id="cart-desc-print"></span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="font-bold text-blue-600 dark:text-blue-400 mr-4" id="cart-price-print"></span>
+                            <button type="button" onclick="toggleService('print', false)" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="cart-item-scan" class="mb-3 hidden border-t border-gray-200/50 dark:border-gray-600/50 pt-3 mt-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-gray-800 dark:text-gray-200" id="cart-lbl-scan">3D Skenování</span>
+                            <div class="flex items-center">
+                                <span class="font-bold text-blue-600 dark:text-blue-400 mr-4" id="cart-price-scan">500 Kč / h</span>
+                                <button type="button" onclick="toggleService('scan', false)" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <select id="cart-scan-tech" class="w-full p-2 rounded-lg border bg-white dark:bg-gray-800 dark:text-white outline-none" onchange="updateCartUI()">
+                            <option value="500" id="cart-opt-scan-ir">Infračervené (500 Kč/h)</option>
+                            <option value="1500" id="cart-opt-scan-laser">Modrý laser (1500 Kč/h)</option>
+                        </select>
+                    </div>
+
+                    <div id="cart-item-model" class="flex justify-between items-center mb-3 hidden border-t border-gray-200/50 dark:border-gray-600/50 pt-3 mt-3">
+                        <span class="font-bold text-gray-800 dark:text-gray-200" id="cart-lbl-model">3D Modelování</span>
+                        <div class="flex items-center">
+                            <span class="font-bold text-blue-600 dark:text-blue-400 mr-4">350 Kč / h</span>
+                            <button type="button" onclick="toggleService('model', false)" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-blue-200 dark:border-gray-600 flex flex-wrap gap-2">
+                        <button type="button" id="btn-add-print" onclick="toggleService('print', true)" class="text-xs bg-white dark:bg-gray-800 border px-3 py-1.5 rounded-md text-gray-700 dark:text-gray-300 font-semibold"><i class="fa-solid fa-plus mr-1"></i> <span id="lbl-add-print">Přidat Tisk</span></button>
+                        <button type="button" id="btn-add-scan" onclick="toggleService('scan', true)" class="text-xs bg-white dark:bg-gray-800 border px-3 py-1.5 rounded-md text-gray-700 dark:text-gray-300 font-semibold"><i class="fa-solid fa-plus mr-1"></i> <span id="lbl-add-scan">Přidat Skenování</span></button>
+                        <button type="button" id="btn-add-model" onclick="toggleService('model', true)" class="text-xs bg-white dark:bg-gray-800 border px-3 py-1.5 rounded-md text-gray-700 dark:text-gray-300 font-semibold"><i class="fa-solid fa-plus mr-1"></i> <span id="lbl-add-model">Přidat Modelování</span></button>
+                    </div>
+                    <p id="warn-add-print" class="text-xs text-orange-500 dark:text-orange-400 mt-3 font-medium hidden">Pro okamžitou kalkulaci tisku vložte 3D model do kalkulačky v pozadí.</p>
+                </div>
+
+                <form id="order-form" action="https://formspree.io/f/YOUR_FORM_ID_HERE" method="POST" enctype="multipart/form-data">
+                    <input type="text" name="_gotcha" style="display:none" />
+                    <input type="hidden" name="Služby" id="hidden-services">
+                    <input type="hidden" name="Součet cen" id="hidden-price-sum">
+                    <input type="hidden" name="Rozpad" id="hidden-details">
+
+                    <div class="mb-4">
+                        <label id="modal-name" class="block text-sm font-semibold mb-1 dark:text-gray-300">Vaše jméno</label>
+                        <input type="text" name="Jmeno" required class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:text-white outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label id="modal-email" class="block text-sm font-semibold mb-1 dark:text-gray-300">E-mail</label>
+                        <input type="email" name="Email" required class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:text-white outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label id="modal-note" class="block text-sm font-semibold mb-1 dark:text-gray-300">Poznámka</label>
+                        <textarea name="Poznamka" rows="3" class="w-full p-3 rounded-xl border bg-white dark:bg-gray-900 dark:text-white outline-none"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label id="modal-file-label" class="block text-sm font-semibold mb-1 dark:text-gray-300">Přiložit soubory (STEP, STL, OBJ, 3MF...)</label>
+                        <input type="file" id="modal-file-input" name="Prilohy" multiple class="w-full p-2 text-sm dark:text-gray-400 border rounded-xl bg-white dark:bg-gray-900">
+                    </div>
+                    <button type="submit" id="modal-submit-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">Odeslat poptávku</button>
+                </form>
+            </div>
+        </div>
+    </div>

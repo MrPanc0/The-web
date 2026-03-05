@@ -1,0 +1,2 @@
+html { scroll-behavior: smooth; }
+#section-bg { transition: background-image 0.7s ease-in-out; }
