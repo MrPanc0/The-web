@@ -7,17 +7,23 @@ function getGeometryVolume(geom) {
     let position = geometry.attributes.position;
     if (!position) return 0;
     
+    const array = position.array;
     let vol = 0;
-    let p1 = new THREE.Vector3();
-    let p2 = new THREE.Vector3();
-    let p3 = new THREE.Vector3();
     
-    for (let i = 0; i < position.count / 3; i++) {
-        p1.fromBufferAttribute(position, i * 3 + 0);
-        p2.fromBufferAttribute(position, i * 3 + 1);
-        p3.fromBufferAttribute(position, i * 3 + 2);
-        vol += p1.dot(p2.cross(p3)) / 6.0;
+    // Čteme rovnou po 9 číslech (3 vrcholy x 3 souřadnice X,Y,Z = 1 trojúhelník)
+    for (let i = 0; i < array.length; i += 9) {
+        let p1x = array[i],   p1y = array[i+1], p1z = array[i+2];
+        let p2x = array[i+3], p2y = array[i+4], p2z = array[i+5];
+        let p3x = array[i+6], p3y = array[i+7], p3z = array[i+8];
+
+        // Matematický křížový a skalární součin vypsaný natvrdo (nejrychlejší možný způsob)
+        vol += (
+            p1x * (p2y * p3z - p2z * p3y) +
+            p1y * (p2z * p3x - p2x * p3z) +
+            p1z * (p2x * p3y - p2y * p3x)
+        ) / 6.0;
     }
+    
     return Math.abs(vol);
 }
 
