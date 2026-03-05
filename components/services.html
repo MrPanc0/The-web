@@ -102,25 +102,29 @@
                 <h3 id="scan-title" class="text-3xl font-bold mb-4 dark:text-white">Profesionální 3D Skenování</h3>
                 <p id="scan-desc" class="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto font-medium">Potřebujete zkopírovat reálný objekt? Digitalizujeme součástky s maximální přesností.</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-80 cursor-default">
-                        <i class="fa-solid fa-bolt text-3xl text-blue-500 mb-3"></i>
-                        <h4 class="font-bold text-xl mb-1 dark:text-white" id="cart-opt-scan-ir-ui">Infračervené</h4>
-                        <p class="text-2xl font-black text-blue-600">500 <small class="text-sm text-gray-500">Kč / h</small></p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-left">
+                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-90 cursor-default flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-xl mb-2 text-gray-900 dark:text-white" id="cart-opt-scan-ir-ui">Infračervené</h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed" id="scan-ir-desc">Vhodné pro střední a větší objekty, sochy či díly. Standardní rozlišení s přesností až 0.1 mm.</p>
+                        </div>
+                        <p class="text-lg font-black text-blue-600">500 <small class="text-sm text-gray-500">Kč / h</small></p>
                     </div>
 
-                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-80 cursor-default">
-                        <i class="fa-solid fa-microscope text-3xl text-blue-500 mb-3"></i>
-                        <h4 class="font-bold text-xl mb-1 dark:text-white" id="cart-opt-scan-laser-ui">Modrý laser</h4>
-                        <p class="text-2xl font-black text-blue-600">1500 <small class="text-sm text-gray-500">Kč / h</small></p>
+                    <div class="p-6 bg-white/50 dark:bg-gray-900/50 border-2 border-transparent rounded-2xl shadow-sm opacity-90 cursor-default flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-xl mb-2 text-gray-900 dark:text-white" id="cart-opt-scan-laser-ui">Modrý laser</h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 leading-relaxed" id="scan-laser-desc">Ideální pro technické díly, reverzní inženýrství a jemné detaily. Extrémní přesnost až 0.02 mm.</p>
+                        </div>
+                        <p class="text-lg font-black text-blue-600">1500 <small class="text-sm text-gray-500">Kč / h</small></p>
                     </div>
                 </div>
 
-                <div class="mb-8 p-4 bg-blue-50/50 dark:bg-gray-900/50 rounded-xl inline-block border border-blue-200/50 dark:border-gray-600/50">
+                <div class="mb-8 p-4 bg-blue-50/50 dark:bg-gray-900/50 rounded-xl inline-block border border-blue-200/50 dark:border-gray-600/50 text-center w-full max-w-md">
                     <p id="scan-note-ui" class="text-gray-700 dark:text-gray-300 font-semibold"><i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>Typ skeneru si vyberete v dalším kroku objednávky.</p>
                 </div>
 
-                <button onclick="openCartModal('scan')" id="order-btn-scan" class="block w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">Přejít k objednávce</button>
+                <button onclick="openCartModal('scan')" id="order-btn-scan" class="block w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1">Přejít k objednávce</button>
             </div>
         </div>
     </section>
