@@ -1,8 +1,8 @@
 // @ts-nocheck
 let rawVolume = 0; 
 
-// --- NOVÉ: Proměnné pro 3D scénu ---
-let scene, camera, renderer, controls, currentMesh;
+// Proměnné pro 3D scénu
+let scene, camera, renderer, controls, currentMesh, currentWrapper;
 let animationId;
 
 function init3DPreview() {
@@ -11,27 +11,22 @@ function init3DPreview() {
 
     scene = new THREE.Scene();
     
-    // Kamera
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
     
-    // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
 
-    // Světla
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
     scene.add(dirLight);
 
-    // Ovládání myší
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
-    // Responzivita
     window.addEventListener('resize', () => {
         if (!container.clientWidth) return;
         camera.aspect = container.clientWidth / container.clientHeight;
@@ -48,14 +43,24 @@ function animate() {
     if (renderer && scene && camera) renderer.render(scene, camera);
 }
 
-// Univerzální funkce pro zobrazení modelu (STL, OBJ i 3MF)
 function showModelPreview(loadedObject, isGeometry = false) {
-    if (!renderer) init3DPreview();
+    const dropZone = document.getElementById('drop-zone');
+    const previewContainer = document.getElementById('preview-container');
 
-    // Vyčištění předchozího modelu
-    if (currentMesh) {
-        scene.remove(currentMesh);
-        currentMesh.traverse(child => {
+    dropZone.classList.add('hidden');
+    previewContainer.classList.remove('hidden');
+
+    if (!renderer) {
+        init3DPreview();
+    } else {
+        camera.aspect = previewContainer.clientWidth / previewContainer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(previewContainer.clientWidth, previewContainer.clientHeight);
+    }
+
+    if (currentWrapper) {
+        scene.remove(currentWrapper);
+        currentWrapper.traverse(child => {
             if (child.isMesh) {
                 if (child.geometry) child.geometry.dispose();
                 if (child.material) {
@@ -64,21 +69,19 @@ function showModelPreview(loadedObject, isGeometry = false) {
                 }
             }
         });
+        currentWrapper = null;
     }
 
-    // Náš firemní materiál
     const material = new THREE.MeshStandardMaterial({ 
         color: 0x2563eb, 
         roughness: 0.4,
         metalness: 0.1
     });
 
-    // Zpracování geometrie (STL) vs. Group (OBJ, 3MF)
     if (isGeometry) {
         currentMesh = new THREE.Mesh(loadedObject, material);
     } else {
         currentMesh = loadedObject;
-        // U OBJ a 3MF projdeme všechny pod-objekty a vnutíme jim náš materiál
         currentMesh.traverse(child => {
             if (child.isMesh) {
                 child.material = material;
@@ -86,21 +89,18 @@ function showModelPreview(loadedObject, isGeometry = false) {
         });
     }
 
-    // AUTOMATICKÉ VYCENTROVÁNÍ POMOCÍ Box3 (Funguje na cokoliv)
     const box = new THREE.Box3().setFromObject(currentMesh);
     const center = new THREE.Vector3();
     box.getCenter(center);
     
-    // Posuneme model tak, aby jeho těžiště bylo přesně na 0,0,0
     currentMesh.position.x = -center.x;
     currentMesh.position.y = -center.y;
     currentMesh.position.z = -center.z;
 
-    const wrapper = new THREE.Group();
-    wrapper.add(currentMesh);
-    scene.add(wrapper);
+    currentWrapper = new THREE.Group();
+    currentWrapper.add(currentMesh);
+    scene.add(currentWrapper);
 
-    // Nastavení kamery podle skutečné velikosti obalového boxu
     const size = new THREE.Vector3();
     box.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
@@ -112,10 +112,6 @@ function showModelPreview(loadedObject, isGeometry = false) {
         controls.target.set(0, 0, 0);
         controls.update();
     }
-
-    // Odkrytí UI s náhledem
-    document.getElementById('drop-zone').classList.add('hidden');
-    document.getElementById('preview-container').classList.remove('hidden');
 }
 
 function resetPreview() {
@@ -125,9 +121,12 @@ function resetPreview() {
     document.getElementById('total-price').innerText = "0";
     document.getElementById('volume-display').innerText = "0.00";
     rawVolume = 0;
-}
-// --- KONEC NOVÉHO KÓDU PRO 3D ---
 
+    if (currentWrapper && scene) {
+        scene.remove(currentWrapper);
+        currentWrapper = null;
+    }
+}
 
 function getGeometryVolume(geom) {
     if (!geom) return 0;
@@ -229,22 +228,155 @@ function initCalculatorListeners() {
                             
                             modelForPreview = geometry;
                             isGeom = true;
-                        } else if (ext === '3mf') {
-                            const loader = new THREE.ThreeMFLoader();
-                            const obj = loader.parse(ev.target.result);
-                            if (!obj) throw new Error("Loader vrátil prázdný objekt.");
-                            obj.traverse(child => {
-                                if (child.isMesh && child.geometry) {
-                                    child.updateMatrixWorld();
-                                    const worldScale = new THREE.Vector3();
-                                    child.matrixWorld.decompose(new THREE.Vector3(), new THREE.Quaternion(), worldScale);
-                                    let meshVol = getGeometryVolume(child.geometry);
-                                    vol += meshVol * Math.abs(worldScale.x * worldScale.y * worldScale.z);
+} else if (ext === '3mf') {
+                            // --- VLASTNÍ NEPRŮSTŘELNÝ 3MF PARSER ---
+                            try {
+                                const fileData = new Uint8Array(ev.target.result);
+                                const unzipped = fflate.unzipSync(fileData);
+
+                                let availableObjects = {};
+                                let buildItems = [];
+
+                                // 1. Projdeme ÚPLNĚ VŠECHNY .model soubory v archivu
+                                Object.keys(unzipped).forEach(path => {
+                                    if (path.toLowerCase().endsWith('.model')) {
+                                        const xmlString = new TextDecoder().decode(unzipped[path]);
+                                        const parser = new DOMParser();
+                                        const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+                                        // Extrakce všech 3D sítí (i těch z Bambu/Prusa Sliceru)
+                                        const objects = xmlDoc.getElementsByTagName('object');
+                                        for (let i = 0; i < objects.length; i++) {
+                                            const objNode = objects[i];
+                                            const id = objNode.getAttribute('id');
+                                            availableObjects[id] = { isMesh: false, geometry: null, components: [] };
+
+                                            const meshNode = objNode.getElementsByTagName('mesh')[0];
+                                            if (meshNode) {
+                                                availableObjects[id].isMesh = true;
+                                                const vertices = [];
+                                                const indices = [];
+
+                                                // Načtení vrcholů
+                                                const vs = meshNode.getElementsByTagName('vertex');
+                                                for (let j = 0; j < vs.length; j++) {
+                                                    vertices.push(
+                                                        parseFloat(vs[j].getAttribute('x')),
+                                                        parseFloat(vs[j].getAttribute('y')),
+                                                        parseFloat(vs[j].getAttribute('z'))
+                                                    );
+                                                }
+
+                                                // Načtení trojúhelníků
+                                                const ts = meshNode.getElementsByTagName('triangle');
+                                                for (let j = 0; j < ts.length; j++) {
+                                                    indices.push(
+                                                        parseInt(ts[j].getAttribute('v1')),
+                                                        parseInt(ts[j].getAttribute('v2')),
+                                                        parseInt(ts[j].getAttribute('v3'))
+                                                    );
+                                                }
+
+                                                // Vytvoření čisté Three.js geometrie (bez barev)
+                                                const geometry = new THREE.BufferGeometry();
+                                                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                                                geometry.setIndex(indices);
+                                                geometry.computeVertexNormals();
+                                                availableObjects[id].geometry = geometry;
+                                            }
+
+                                            // Podpora pro komponenty (více částí jednoho objektu)
+                                            const compsNode = objNode.getElementsByTagName('components')[0];
+                                            if (compsNode) {
+                                                const comps = compsNode.getElementsByTagName('component');
+                                                for (let j = 0; j < comps.length; j++) {
+                                                    availableObjects[id].components.push({
+                                                        objectId: comps[j].getAttribute('objectid'),
+                                                        transform: comps[j].getAttribute('transform')
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        // Najdeme objekty, které se mají reálně vykreslit (Build items)
+                                        const buildNode = xmlDoc.getElementsByTagName('build')[0];
+                                        if (buildNode) {
+                                            const items = buildNode.getElementsByTagName('item');
+                                            for (let i = 0; i < items.length; i++) {
+                                                buildItems.push({
+                                                    objectId: items[i].getAttribute('objectid'),
+                                                    transform: items[i].getAttribute('transform')
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+
+                                // 2. Funkce pro sestavení modelu podle transformačních matic ze Sliceru
+                                function buildThreeObject(objectId, transformStr) {
+                                    const objData = availableObjects[objectId];
+                                    if (!objData) return null;
+
+                                    const group = new THREE.Group();
+
+                                    // Aplikace pozice a rotace
+                                    if (transformStr) {
+                                        const t = transformStr.split(' ').map(parseFloat);
+                                        if (t.length === 12) {
+                                            const matrix = new THREE.Matrix4();
+                                            matrix.set(
+                                                t[0], t[3], t[6], t[9],
+                                                t[1], t[4], t[7], t[10],
+                                                t[2], t[5], t[8], t[11],
+                                                 0,    0,    0,    1
+                                            );
+                                            group.applyMatrix4(matrix);
+                                        }
+                                    }
+
+                                    if (objData.isMesh && objData.geometry) {
+                                        // Vnutíme náš jednotný modrý materiál
+                                        const material = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4, metalness: 0.1 });
+                                        const mesh = new THREE.Mesh(objData.geometry, material);
+                                        group.add(mesh);
+                                    }
+
+                                    objData.components.forEach(comp => {
+                                        const child = buildThreeObject(comp.objectId, comp.transform);
+                                        if (child) group.add(child);
+                                    });
+
+                                    return group;
                                 }
-                            });
-                            
-                            modelForPreview = obj;
-                            isGeom = false;
+
+                                // 3. Finální složení scény
+                                const finalGroup = new THREE.Group();
+                                buildItems.forEach(item => {
+                                    const child = buildThreeObject(item.objectId, item.transform);
+                                    if (child) finalGroup.add(child);
+                                });
+
+                                // 4. Výpočet objemu pro všechny části modelu
+                                vol = 0;
+                                finalGroup.updateMatrixWorld(true);
+                                finalGroup.traverse(child => {
+                                    if (child.isMesh && child.geometry) {
+                                        const worldScale = new THREE.Vector3();
+                                        child.matrixWorld.decompose(new THREE.Vector3(), new THREE.Quaternion(), worldScale);
+                                        try {
+                                            let meshVol = getGeometryVolume(child.geometry);
+                                            vol += meshVol * Math.abs(worldScale.x * worldScale.y * worldScale.z);
+                                        } catch (e) {}
+                                    }
+                                });
+
+                                modelForPreview = finalGroup;
+                                isGeom = false; // Říkáme hlavní funkci, že jde o Group, nikoliv holou geometrii
+
+                            } catch (customErr) {
+                                console.error("Kritická chyba parseru 3MF:", customErr);
+                                throw new Error("Soubor 3MF se nepodařilo načíst. Zkuste nahrát STL formát.");
+                            }
                         } else if (ext === 'obj') {
                             const loader = new THREE.OBJLoader();
                             const text = new TextDecoder().decode(ev.target.result);
@@ -258,7 +390,6 @@ function initCalculatorListeners() {
                         rawVolume = vol; 
                         updatePrice();
                         
-                        // Zobrazení modelu po úspěšném výpočtu objemu
                         if (modelForPreview) {
                             showModelPreview(modelForPreview, isGeom);
                         }
