@@ -13,12 +13,13 @@ const translations = {
         scanTitle: "Profesionální 3D Skenování", scanDesc: "Potřebujete zkopírovat reálný objekt? Digitalizujeme s maximální přesností.", scanNoteUi: "<i class='fa-solid fa-circle-info text-blue-500 mr-2'></i>Typ skeneru si vyberete v dalším kroku.",
         scanIrDesc: "Vhodné pro střední a větší objekty, sochy či díly. Standardní rozlišení s přesností až 0.1 mm.",
         scanLaserDesc: "Ideální pro technické díly, reverzní inženýrství a jemné detaily. Extrémní přesnost až 0.02 mm.",
-        galleryTitle: "Naše práce", faqTitle: "Často kladené dotazy", faqQ1: "Jak dlouho trvá výroba?", faqA1: "Standardní objednávky expedujeme do 48 hodin.", faqQ2: "Jaké jsou maximální rozměry tisku?", faqA2: "Náš největší tiskový objem je 300 x 300 x 400 mm.", faqQ3: "Můžete mi pomoci s návrhem modelu?", faqA3: "Ano! Nabízíme i drobné úpravy.", footerDesc: "Profesionální zakázkový 3D tisk a modelování.", contactTitle: "Kontakt", socialTitle: "Sledujte nás",
+        galleryTitle: "Naše práce", faqTitle: "Často kladené dotazy", faqQ1: "Jak dlouho trvá výroba?", faqA1: "Zdarma vám do 24 hodin zašleme reálný odhad ceny.<br>Po potvrzení objednávky odesíláme hotový produkt do 2–4 pracovních dnů. U složitějších či větších projektů se může dodací lhůta lišit.", faqQ2: "Jaké jsou maximální rozměry tisku?", faqA2: "Náš největší tiskový objem je 350 x 350 x 350 mm.", faqQ3: "Můžete mi pomoci s návrhem modelu?", faqA3: "Model dokážeme vytvořit podle technického výkresu nebo fotografie (ideálně doplněné o rozměry).", footerDesc: "Profesionální zakázkový 3D tisk a modelování.", contactTitle: "Kontakt", socialTitle: "Sledujte nás",
         modalTitle: "Odeslat poptávku", cartTitle: "Položky poptávky:", cartLblPrint: "3D Tisk", cartLblModel: "3D Modelování", cartLblScan: "3D Skenování",
         cartOptScanIr: "Infračervené (500 Kč/h)", cartOptScanLaser: "Modrý laser (1500 Kč/h)", 
         cartOptScanIrUi: "Infračervené", cartOptScanLaserUi: "Modrý laser",
         lblAddPrint: "Přidat Tisk", lblAddModel: "Přidat Modelování", lblAddScan: "Přidat Skenování", 
         warnAddPrint: "Pro kalkulaci tisku vložte 3D model do kalkulačky na webu.", modalName: "Vaše jméno", modalEmail: "E-mail", modalNote: "Poznámka", modalSubmitBtn: "Odeslat poptávku",
+        heroDesc: "Vyberte si službu, zjistěte okamžitě cenu a nechte zbytek na nás s maximální přesností.",
         modalFileLabel: "Přiložit soubory (STEP, STL, OBJ...)", sumHourlyStr: " + hodinová sazba", valOnRequest: "Na dotaz", valNoModel: "Model nenahrán (přiložte manuálně)"
     },
     en: {
@@ -33,12 +34,13 @@ const translations = {
         scanTitle: "Professional 3D Scanning", scanDesc: "Need to duplicate a real object? We digitize with max precision.", scanNoteUi: "<i class='fa-solid fa-circle-info text-blue-500 mr-2'></i>Select scanner type in the next step.",
         scanIrDesc: "Suitable for medium and large objects, sculptures, or parts. Standard resolution with up to 0.1 mm accuracy.",
         scanLaserDesc: "Ideal for technical parts, reverse engineering, and fine details. Extreme accuracy up to 0.02 mm.",
-        galleryTitle: "Our Work", faqTitle: "FAQ", faqQ1: "How long does production take?", faqA1: "We ship standard orders within 48 hours.", faqQ2: "What are the max print dimensions?", faqA2: "Our largest volume is 300 x 300 x 400 mm.", faqQ3: "Can you help with model design?", faqA3: "Yes! We offer modifications too.", footerDesc: "Professional custom 3D printing and modeling.", contactTitle: "Contact Us", socialTitle: "Follow Us",
+        galleryTitle: "Our Work", faqTitle: "FAQ", faqQ1: "How long does production take?", faqA1: "We’ll send you a realistic price estimate within 24 hours, free of charge.<br>Once your order is confirmed, we ship the finished product within 2–4 business days. For more complex or larger projects, delivery times may vary.", faqQ2: "What are the max print dimensions?", faqA2: "Our largest volume is 350 x 350 x 350 mm.", faqQ3: "Can you help with model design?", faqA3: "We can create a model based on a technical drawing or photograph (ideally accompanied by dimensions).", footerDesc: "Professional custom 3D printing and modeling.", contactTitle: "Contact Us", socialTitle: "Follow Us",
         modalTitle: "Submit Request", cartTitle: "Your Cart Items:", cartLblPrint: "3D Printing", cartLblModel: "3D Modeling", cartLblScan: "3D Scanning",
         cartOptScanIr: "Infrared (500 CZK/h)", cartOptScanLaser: "Blue Laser (1500 CZK/h)", 
         cartOptScanIrUi: "Infrared", cartOptScanLaserUi: "Blue Laser",
         lblAddPrint: "Add Printing", lblAddModel: "Add Modeling", lblAddScan: "Add Scanning", 
         warnAddPrint: "For print calculation, upload a 3D model in the web calculator.", modalName: "Your Name", modalEmail: "Email", modalNote: "Note", modalSubmitBtn: "Submit Request",
+        heroDesc: "Choose a service, get an instant price, and leave the rest to us with maximum precision.",
         modalFileLabel: "Attach files (STEP, STL, OBJ...)", sumHourlyStr: " + hourly rate", valOnRequest: "On request", valNoModel: "Model not uploaded"
     }
 };
@@ -58,7 +60,7 @@ function initTranslationsListener() {
 function applyTranslations() {
     const t = translations[currentLang];
     const elements = [
-        'page-title', 'nav-services', 'nav-gallery', 'nav-faq', 'nav-contact', 'drop-sub', 'label-units', 'opt-mm', 'opt-cm', 'opt-m', 
+        'hero-desc', 'page-title', 'nav-services', 'nav-gallery', 'nav-faq', 'nav-contact', 'drop-sub', 'label-units', 'opt-mm', 'opt-cm', 'opt-m', 
         'label-infill', 'opt-inf-25', 'opt-inf-40', 'opt-inf-70', 'opt-inf-100', 'label-material', 'label-pieces', 'est-price-label', 
         'net-volume-label', 'discount-label', 'fee-label', 'prep-label', 'order-btn-print', 'order-btn-model', 'order-btn-scan', 
         'loading-text', 'model-title', 'model-desc', 'model-rate-label', 'scan-title', 'scan-desc', 'gallery-title', 'faq-title', 
@@ -71,7 +73,7 @@ function applyTranslations() {
     elements.forEach(id => {
         const el = document.getElementById(id);
         let key = id.replace(/-([a-z0-9])/g, g => g[1].toUpperCase());
-        if (el && t[key]) el.innerText = t[key];
+        if (el && t[key]) el.innerHTML = t[key];
     });
 
     const setTxt = (id, key) => { if (document.getElementById(id)) document.getElementById(id).innerText = t[key]; };
