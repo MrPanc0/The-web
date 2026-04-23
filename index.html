@@ -28,47 +28,56 @@
     <meta property="og:url" content="https://tvoje-domena.cz">
     <meta property="og:image" content="https://tvoje-domena.cz/print.jpg">
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Cluster3D",
-      "description": "Profesionální 3D tisk, 3D modelování a 3D skenování na zakázku s okamžitou online kalkulací ceny.",
-      "image": "https://tvoje-domena.cz/print.jpg",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Chrudim",
-        "addressRegion": "Pardubický kraj",
-        "addressCountry": "CZ"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 49.9511,
-        "longitude": 15.7944
-      },
-      "url": "https://tvoje-domena.cz",
-      "priceRange": "$$",
-      "makesOffer": [
-        {
-          "@type": "Offer",
-          "name": "3D Tisk",
-          "description": "Okamžitá kalkulace ceny na základě nahraného 3D modelu (STL, OBJ, 3MF)."
-        },
-        {
-          "@type": "Offer",
-          "name": "3D Modelování",
-          "description": "Tvorba 3D modelů na zakázku podle výkresů nebo nápadů. Sazba 350 Kč/h."
-        },
-        {
-          "@type": "Offer",
-          "name": "3D Skenování",
-          "description": "Profesionální skenování (infračervené i modrý laser) s přesností až 0.02 mm."
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Cluster3D",
+    "url": "https://www.vasedomena.cz",
+    "logo": "https://www.vasedomena.cz/img/logo.png",
+    "description": "Profesionální 3D tisk a modelování na zakázku s interaktivní kalkulačkou."
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Jaké formáty 3D modelů přijímáte?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Naše interaktivní kalkulačka podporuje nejběžnější formáty jako jsou STL, OBJ a 3MF."
         }
-      ]
-    }
-    </script>
+      },
+      {
+        "@type": "Question",
+        "name": "Jak dlouho trvá tisk a dodání?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Standardní doba zpracování a tisku je 2 až 4 pracovní dny v závislosti na složitosti a velikosti vašeho modelu."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Z jakých materiálů tisknete?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nejčastěji využíváme materiály PLA a PETG. Pro techničtější díly nabízíme také tisk z odolnějšího ABS nebo flexibilních materiálů."
+        }
+      }
+    ]
+  }
+]
+</script>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <div id="page-loader" class="fixed inset-0 z-[9999] bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out">
+        <i class="fa-solid fa-cube fa-bounce text-6xl text-blue-600 mb-4"></i>
+        <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Cluster<span class="text-blue-600">3D</span></h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium tracking-widest uppercase">Načítání aplikace...</p>
+    </div>
 
     <div id="app-navbar"></div>
     <div id="app-header"></div>
