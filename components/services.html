@@ -1,4 +1,4 @@
-    <section id="kalkulace" class="py-16 relative transition-colors min-h-[800px] flex items-center">
+    <section id="kalkulace" class="py-16 relative transition-colors min-h-[800px] flex items-center reveal">
 <div id="section-bg" class="absolute inset-0 bg-cover bg-center z-0" style="background-image: url('print.jpg');"></div>s
         <div class="absolute inset-0 bg-white/40 dark:bg-gray-900/70 z-0 transition-colors duration-300"></div>
 
@@ -72,20 +72,27 @@
                         <span id="total-price">0</span> <small class="text-2xl">Kč</small>
                     </div>
                     
-                    <div class="bg-white/80 dark:bg-gray-800/80 w-full rounded-xl p-4 mt-4 shadow-sm text-sm text-left border">
-                        <div class="flex justify-between mb-1">
-                            <span id="net-volume-label" class="text-gray-700 dark:text-gray-300">Čistý objem k tisku:</span>
-                            <span class="font-bold"><span id="volume-display">0.00</span> cm³</span>
-                        </div>
-                        <div id="discount-row" class="flex justify-between mb-1 hidden text-green-700 dark:text-green-400">
-                            <span id="discount-label">Množstevní sleva:</span>
-                            <span class="font-bold" id="discount-display">- 0 %</span>
-                        </div>
-                        <div id="fee-row" class="flex justify-between mb-1 text-gray-700 dark:text-gray-300">
-                            <span id="fee-label">Manipulační poplatek:</span>
-                            <span class="font-bold transition-colors" id="fee-display">50 Kč</span>
-                        </div>
+                <div class="bg-white/80 dark:bg-gray-800/80 w-full rounded-xl p-4 mt-4 shadow-sm text-sm text-left border">
+                    
+                    <div class="flex justify-between mb-1 text-gray-700 dark:text-gray-300">
+                        <span id="dimensions-label">Rozměry modelu (X×Y×Z):</span>
+                        <span class="font-bold"><span id="dimensions-display">0 × 0 × 0</span> mm</span>
                     </div>
+
+                    <div class="flex justify-between mb-1">
+                        <span id="net-volume-label" class="text-gray-700 dark:text-gray-300">Čistý objem k tisku:</span>
+                        <span class="font-bold"><span id="volume-display">0.00</span> cm³</span>
+                    </div>
+                    
+                    <div id="discount-row" class="flex justify-between mb-1 hidden text-green-700 dark:text-green-400">
+                        <span id="discount-label">Množstevní sleva:</span>
+                        <span class="font-bold" id="discount-display">- 0 %</span>
+                    </div>
+                    <div id="fee-row" class="flex justify-between mb-1 text-gray-700 dark:text-gray-300">
+                        <span id="fee-label">Manipulační poplatek:</span>
+                        <span class="font-bold transition-colors" id="fee-display">50 Kč</span>
+                    </div>
+                </div>
 
                     <button onclick="openCartModal('print')" id="order-btn-print" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition">
                         Přejít k objednávce
