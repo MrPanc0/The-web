@@ -1,5 +1,16 @@
-let currentLang = 'cs';
+// Zjistíme, zda uživatel už někdy jazyk u nás manuálně nepřepnul
+let currentLang = localStorage.getItem('appLang');
 
+// Pokud u nás uživatel ještě nebyl (nemá uloženou preferenci), detekujeme systém
+if (!currentLang) {
+    const browserLang = navigator.language || navigator.userLanguage;
+    
+    // Pokud prohlížeč hlásí češtinu (cs nebo cs-CZ), nastavíme 'cs', jinak 'en'
+    currentLang = browserLang.startsWith('cs') ? 'cs' : 'en';
+    
+    // Uložíme do paměti prohlížeče pro příští návštěvu
+    localStorage.setItem('appLang', currentLang);
+}
 const translations = {
     cs: {
         pageTitle: "Cluster3D | Profi Služby", navServices: "Služby", navGallery: "Galerie", navFaq: "FAQ", navContact: "Kontakt",
