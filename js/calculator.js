@@ -19,7 +19,15 @@ function init3DPreview() {
     container.appendChild(renderer.domElement);
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    // Vytvoření světla (můžete upravit barvu a intenzitu)
+    const cameraLight = new THREE.DirectionalLight(0xffffff, 1.5);
+
+    // Nastavení pozice relativně ke kameře 
+    cameraLight.position.set(0, 0, 1);
+    // PŘIPOJENÍ KE KAMEŘE místo do scény
+    camera.add(cameraLight);
+    scene.add(camera);
+    
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(10, 20, 10);
     scene.add(dirLight);
