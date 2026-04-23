@@ -113,6 +113,14 @@ function showModelPreview(loadedObject, isGeometry = false) {
     box.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z);
     
+    // --- NOVÝ KÓD PRO VYPSÁNÍ ROZMĚRŮ DO HTML ---
+    const dimDisplay = document.getElementById('dimensions-display');
+    if (dimDisplay) {
+        // Vypíše rozměry zaokrouhlené na 1 desetinné místo
+        dimDisplay.innerText = `${size.x.toFixed(1)} × ${size.y.toFixed(1)} × ${size.z.toFixed(1)}`;
+    }
+    // -------------------------------------------
+
     camera.position.set(0, maxDim * 0.5, maxDim * 1.5);
     camera.lookAt(0, 0, 0);
     
@@ -129,6 +137,9 @@ function resetPreview() {
     document.getElementById('total-price').innerText = "0";
     document.getElementById('volume-display').innerText = "0.00";
     rawVolume = 0;
+
+    const dimDisplay = document.getElementById('dimensions-display');
+    if (dimDisplay) dimDisplay.innerText = "0 × 0 × 0";
 
     if (currentWrapper && scene) {
         scene.remove(currentWrapper);
@@ -207,215 +218,239 @@ function updatePrice() {
 
 function initCalculatorListeners() {
     const fileInput = document.getElementById('file-input');
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
+    const dropZone = document.getElementById('drop-zone');
+
+    // 1. Společná funkce pro zpracování souboru
+    function handleFile(file) {
+        if (!file) return;
+        const ext = file.name.split('.').pop().toLowerCase();
+        
+        if (!['stl', 'obj', '3mf'].includes(ext)) {
+            // ZMĚNA: Místo alertu použijeme toast
+            const msg = typeof translations !== 'undefined' ? translations[currentLanguage].alertStl : "Nepodporovaný formát. Nahrajte STL, OBJ nebo 3MF.";
+            showToast(msg, "error");
+            return;
+        }
+        
+        document.getElementById('drop-text').innerText = file.name;
+        document.getElementById('loading').classList.remove('hidden');
+        
+        const reader = new FileReader();
+        reader.onload = function(ev) {
             try {
-                const file = e.target.files[0];
-                if (!file) return;
-                const ext = file.name.split('.').pop().toLowerCase();
-                
-                if (!['stl', 'obj', '3mf'].includes(ext)) {
-                    alert(typeof translations !== 'undefined' ? translations[currentLang].alertStl : "Nepodporovaný formát. Nahrajte STL, OBJ nebo 3MF.");
-                    return;
-                }
-                
-                document.getElementById('drop-text').innerText = file.name;
-                document.getElementById('loading').classList.remove('hidden');
-                
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    try {
-                        let vol = 0;
-                        let modelForPreview = null;
-                        let isGeom = false;
+                let vol = 0;
+                let modelForPreview = null;
+                let isGeom = false;
 
-                        if (ext === 'stl') {
-                            const loader = new THREE.STLLoader();
-                            const geometry = loader.parse(ev.target.result);
-                            vol = getGeometryVolume(geometry);
-                            
-                            modelForPreview = geometry;
-                            isGeom = true;
-} else if (ext === '3mf') {
-                            // --- VLASTNÍ NEPRŮSTŘELNÝ 3MF PARSER ---
-                            try {
-                                const fileData = new Uint8Array(ev.target.result);
-                                const unzipped = fflate.unzipSync(fileData);
+                if (ext === 'stl') {
+                    const loader = new THREE.STLLoader();
+                    const geometry = loader.parse(ev.target.result);
+                    vol = getGeometryVolume(geometry);
+                    modelForPreview = geometry;
+                    isGeom = true;
+                } else if (ext === '3mf') {
+                    // --- Zde zůstává váš původní 3MF parser nezměněn ---
+                    const fileData = new Uint8Array(ev.target.result);
+                    const unzipped = fflate.unzipSync(fileData);
+                    let availableObjects = {};
+                    let buildItems = [];
 
-                                let availableObjects = {};
-                                let buildItems = [];
+                    Object.keys(unzipped).forEach(path => {
+                        if (path.toLowerCase().endsWith('.model')) {
+                            const xmlString = new TextDecoder().decode(unzipped[path]);
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(xmlString, "application/xml");
 
-                                // 1. Projdeme ÚPLNĚ VŠECHNY .model soubory v archivu
-                                Object.keys(unzipped).forEach(path => {
-                                    if (path.toLowerCase().endsWith('.model')) {
-                                        const xmlString = new TextDecoder().decode(unzipped[path]);
-                                        const parser = new DOMParser();
-                                        const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+                            const objects = xmlDoc.getElementsByTagName('object');
+                            for (let i = 0; i < objects.length; i++) {
+                                const objNode = objects[i];
+                                const id = objNode.getAttribute('id');
+                                availableObjects[id] = { isMesh: false, geometry: null, components: [] };
 
-                                        // Extrakce všech 3D sítí (i těch z Bambu/Prusa Sliceru)
-                                        const objects = xmlDoc.getElementsByTagName('object');
-                                        for (let i = 0; i < objects.length; i++) {
-                                            const objNode = objects[i];
-                                            const id = objNode.getAttribute('id');
-                                            availableObjects[id] = { isMesh: false, geometry: null, components: [] };
+                                const meshNode = objNode.getElementsByTagName('mesh')[0];
+                                if (meshNode) {
+                                    availableObjects[id].isMesh = true;
+                                    const vertices = [];
+                                    const indices = [];
 
-                                            const meshNode = objNode.getElementsByTagName('mesh')[0];
-                                            if (meshNode) {
-                                                availableObjects[id].isMesh = true;
-                                                const vertices = [];
-                                                const indices = [];
-
-                                                // Načtení vrcholů
-                                                const vs = meshNode.getElementsByTagName('vertex');
-                                                for (let j = 0; j < vs.length; j++) {
-                                                    vertices.push(
-                                                        parseFloat(vs[j].getAttribute('x')),
-                                                        parseFloat(vs[j].getAttribute('y')),
-                                                        parseFloat(vs[j].getAttribute('z'))
-                                                    );
-                                                }
-
-                                                // Načtení trojúhelníků
-                                                const ts = meshNode.getElementsByTagName('triangle');
-                                                for (let j = 0; j < ts.length; j++) {
-                                                    indices.push(
-                                                        parseInt(ts[j].getAttribute('v1')),
-                                                        parseInt(ts[j].getAttribute('v2')),
-                                                        parseInt(ts[j].getAttribute('v3'))
-                                                    );
-                                                }
-
-                                                // Vytvoření čisté Three.js geometrie (bez barev)
-                                                const geometry = new THREE.BufferGeometry();
-                                                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                                                geometry.setIndex(indices);
-                                                geometry.computeVertexNormals();
-                                                availableObjects[id].geometry = geometry;
-                                            }
-
-                                            // Podpora pro komponenty (více částí jednoho objektu)
-                                            const compsNode = objNode.getElementsByTagName('components')[0];
-                                            if (compsNode) {
-                                                const comps = compsNode.getElementsByTagName('component');
-                                                for (let j = 0; j < comps.length; j++) {
-                                                    availableObjects[id].components.push({
-                                                        objectId: comps[j].getAttribute('objectid'),
-                                                        transform: comps[j].getAttribute('transform')
-                                                    });
-                                                }
-                                            }
-                                        }
-
-                                        // Najdeme objekty, které se mají reálně vykreslit (Build items)
-                                        const buildNode = xmlDoc.getElementsByTagName('build')[0];
-                                        if (buildNode) {
-                                            const items = buildNode.getElementsByTagName('item');
-                                            for (let i = 0; i < items.length; i++) {
-                                                buildItems.push({
-                                                    objectId: items[i].getAttribute('objectid'),
-                                                    transform: items[i].getAttribute('transform')
-                                                });
-                                            }
-                                        }
-                                    }
-                                });
-
-                                // 2. Funkce pro sestavení modelu podle transformačních matic ze Sliceru
-                                function buildThreeObject(objectId, transformStr) {
-                                    const objData = availableObjects[objectId];
-                                    if (!objData) return null;
-
-                                    const group = new THREE.Group();
-
-                                    // Aplikace pozice a rotace
-                                    if (transformStr) {
-                                        const t = transformStr.split(' ').map(parseFloat);
-                                        if (t.length === 12) {
-                                            const matrix = new THREE.Matrix4();
-                                            matrix.set(
-                                                t[0], t[3], t[6], t[9],
-                                                t[1], t[4], t[7], t[10],
-                                                t[2], t[5], t[8], t[11],
-                                                 0,    0,    0,    1
-                                            );
-                                            group.applyMatrix4(matrix);
-                                        }
+                                    const vs = meshNode.getElementsByTagName('vertex');
+                                    for (let j = 0; j < vs.length; j++) {
+                                        vertices.push(
+                                            parseFloat(vs[j].getAttribute('x')),
+                                            parseFloat(vs[j].getAttribute('y')),
+                                            parseFloat(vs[j].getAttribute('z'))
+                                        );
                                     }
 
-                                    if (objData.isMesh && objData.geometry) {
-                                        // Vnutíme náš jednotný modrý materiál
-                                        const material = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4, metalness: 0.1 });
-                                        const mesh = new THREE.Mesh(objData.geometry, material);
-                                        group.add(mesh);
+                                    const ts = meshNode.getElementsByTagName('triangle');
+                                    for (let j = 0; j < ts.length; j++) {
+                                        indices.push(
+                                            parseInt(ts[j].getAttribute('v1')),
+                                            parseInt(ts[j].getAttribute('v2')),
+                                            parseInt(ts[j].getAttribute('v3'))
+                                        );
                                     }
 
-                                    objData.components.forEach(comp => {
-                                        const child = buildThreeObject(comp.objectId, comp.transform);
-                                        if (child) group.add(child);
-                                    });
-
-                                    return group;
+                                    const geometry = new THREE.BufferGeometry();
+                                    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                                    geometry.setIndex(indices);
+                                    geometry.computeVertexNormals();
+                                    availableObjects[id].geometry = geometry;
                                 }
 
-                                // 3. Finální složení scény
-                                const finalGroup = new THREE.Group();
-                                buildItems.forEach(item => {
-                                    const child = buildThreeObject(item.objectId, item.transform);
-                                    if (child) finalGroup.add(child);
-                                });
-
-                                // 4. Výpočet objemu pro všechny části modelu
-                                vol = 0;
-                                finalGroup.updateMatrixWorld(true);
-                                finalGroup.traverse(child => {
-                                    if (child.isMesh && child.geometry) {
-                                        const worldScale = new THREE.Vector3();
-                                        child.matrixWorld.decompose(new THREE.Vector3(), new THREE.Quaternion(), worldScale);
-                                        try {
-                                            let meshVol = getGeometryVolume(child.geometry);
-                                            vol += meshVol * Math.abs(worldScale.x * worldScale.y * worldScale.z);
-                                        } catch (e) {}
+                                const compsNode = objNode.getElementsByTagName('components')[0];
+                                if (compsNode) {
+                                    const comps = compsNode.getElementsByTagName('component');
+                                    for (let j = 0; j < comps.length; j++) {
+                                        availableObjects[id].components.push({
+                                            objectId: comps[j].getAttribute('objectid'),
+                                            transform: comps[j].getAttribute('transform')
+                                        });
                                     }
-                                });
-
-                                modelForPreview = finalGroup;
-                                isGeom = false; // Říkáme hlavní funkci, že jde o Group, nikoliv holou geometrii
-
-                            } catch (customErr) {
-                                console.error("Kritická chyba parseru 3MF:", customErr);
-                                throw new Error("Soubor 3MF se nepodařilo načíst. Zkuste nahrát STL formát.");
+                                }
                             }
-                        } else if (ext === 'obj') {
-                            const loader = new THREE.OBJLoader();
-                            const text = new TextDecoder().decode(ev.target.result);
-                            const obj = loader.parse(text);
-                            obj.traverse(c => { if (c.isMesh) vol += getGeometryVolume(c.geometry); });
-                            
-                            modelForPreview = obj;
-                            isGeom = false;
+
+                            const buildNode = xmlDoc.getElementsByTagName('build')[0];
+                            if (buildNode) {
+                                const items = buildNode.getElementsByTagName('item');
+                                for (let i = 0; i < items.length; i++) {
+                                    buildItems.push({
+                                        objectId: items[i].getAttribute('objectid'),
+                                        transform: items[i].getAttribute('transform')
+                                    });
+                                }
+                            }
                         }
-                        
-                        rawVolume = vol; 
-                        updatePrice();
-                        
-                        if (modelForPreview) {
-                            showModelPreview(modelForPreview, isGeom);
+                    });
+
+                    function buildThreeObject(objectId, transformStr) {
+                        const objData = availableObjects[objectId];
+                        if (!objData) return null;
+
+                        const group = new THREE.Group();
+
+                        if (transformStr) {
+                            const t = transformStr.split(' ').map(parseFloat);
+                            if (t.length === 12) {
+                                const matrix = new THREE.Matrix4();
+                                matrix.set(
+                                    t[0], t[3], t[6], t[9],
+                                    t[1], t[4], t[7], t[10],
+                                    t[2], t[5], t[8], t[11],
+                                     0,    0,    0,    1
+                                );
+                                group.applyMatrix4(matrix);
+                            }
                         }
 
-                    } catch (err) { 
-                        console.error(err);
-                        alert("Chyba při zpracování modelu: " + err.message); 
-                    } finally { 
-                        document.getElementById('loading').classList.add('hidden'); 
+                        if (objData.isMesh && objData.geometry) {
+                            const material = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4, metalness: 0.1 });
+                            const mesh = new THREE.Mesh(objData.geometry, material);
+                            group.add(mesh);
+                        }
+
+                        objData.components.forEach(comp => {
+                            const child = buildThreeObject(comp.objectId, comp.transform);
+                            if (child) group.add(child);
+                        });
+
+                        return group;
                     }
-                };
-                reader.readAsArrayBuffer(file);
-            } catch (globalErr) {
-                alert("Kritická chyba: " + globalErr.message);
+
+                    const finalGroup = new THREE.Group();
+                    buildItems.forEach(item => {
+                        const child = buildThreeObject(item.objectId, item.transform);
+                        if (child) finalGroup.add(child);
+                    });
+
+                    vol = 0;
+                    finalGroup.updateMatrixWorld(true);
+                    finalGroup.traverse(child => {
+                        if (child.isMesh && child.geometry) {
+                            const worldScale = new THREE.Vector3();
+                            child.matrixWorld.decompose(new THREE.Vector3(), new THREE.Quaternion(), worldScale);
+                            try {
+                                let meshVol = getGeometryVolume(child.geometry);
+                                vol += meshVol * Math.abs(worldScale.x * worldScale.y * worldScale.z);
+                            } catch (e) {}
+                        }
+                    });
+
+                    modelForPreview = finalGroup;
+                    isGeom = false; 
+
+                } else if (ext === 'obj') {
+                    const loader = new THREE.OBJLoader();
+                    const text = new TextDecoder().decode(ev.target.result);
+                    const obj = loader.parse(text);
+                    obj.traverse(c => { if (c.isMesh) vol += getGeometryVolume(c.geometry); });
+                    
+                    modelForPreview = obj;
+                    isGeom = false;
+                }
+                
+                rawVolume = vol; 
+                updatePrice();
+                
+                if (modelForPreview) {
+                    showModelPreview(modelForPreview, isGeom);
+                }
+
+            } catch (err) { 
+                console.error(err);
+                alert("Chyba při zpracování modelu: " + err.message); 
+            } finally { 
+                document.getElementById('loading').classList.add('hidden'); 
             }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // 2. Event Listener pro KLASICKÉ KLIKNUTÍ A VÝBĚR SOUBORU
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFile(e.target.files[0]);
         });
     }
 
+    // 3. Event Listenery pro DRAG & DROP (Přetažení myší)
+    if (dropZone) {
+        // Zabráníme prohlížeči, aby si soubor otevřel sám (výchozí chování)
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Vizuální efekty - když uživatel drží soubor nad boxem, zmodrá
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'border-blue-500');
+            }, false);
+        });
+
+        // Odstranění efektu, když odjede myší pryč, nebo soubor pustí
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('bg-blue-100', 'dark:bg-blue-900/50', 'border-blue-500');
+            }, false);
+        });
+
+        // Samotné puštění souboru (drop)
+        dropZone.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                // Skrytě nastavíme soubor do klasického inputu a spustíme zpracování
+                fileInput.files = files; 
+                handleFile(files[0]);
+            }
+        }, false);
+    }
+
+    // 4. Listenery pro změnu selectů (materiál atd.)
     ['units', 'infill', 'material'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updatePrice);
