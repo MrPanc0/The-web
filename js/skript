@@ -1,0 +1,18 @@
+﻿
+function nastavJazyk() {
+  let jazykProhlizece = navigator.language || navigator.userLanguage;
+  let kodJazyka = jazykProhlizece.split('-')[0];
+
+  // Pokud jazyk není ve slovníku, nastavíme angličtinu
+  if (!texty[kodJazyka]) {
+    kodJazyka = 'en'; 
+  
+}
+
+  // Přepsání textů podle ID
+  document.getElementById('hlavni-nadpis').innerText = texty[kodJazyka].nadpis;
+  document.getElementById('hlavni-popis').innerText = texty[kodJazyka].popis;
+}
+
+// Spuštění po načtení stránky
+window.addEventListener('DOMContentLoaded', nastavJazyk);
