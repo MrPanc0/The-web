@@ -227,7 +227,7 @@ function initCalculatorListeners() {
         
         if (!['stl', 'obj', '3mf'].includes(ext)) {
             // ZMĚNA: Místo alertu použijeme toast
-            const msg = typeof translations !== 'undefined' ? translations[currentLanguage].alertStl : "Nepodporovaný formát. Nahrajte STL, OBJ nebo 3MF.";
+            const msg = typeof translations !== 'undefined' ? translations[currentLang].alertStl : "Nepodporovaný formát. Nahrajte STL, OBJ nebo 3MF.";
             showToast(msg, "error");
             return;
         }
