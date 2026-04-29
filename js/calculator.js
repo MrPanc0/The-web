@@ -5,9 +5,30 @@ let rawVolume = 0;
 let scene, camera, renderer, controls, currentMesh, currentWrapper;
 let animationId;
 
+/**
+ * Zjistí, zda prohlížeč podporuje WebGL.
+ * @returns {boolean}
+ */
+function detectWebGL() {
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl && gl instanceof WebGLRenderingContext) {
+            return true;
+        }
+    } catch (e) {
+        return false;
+    }
+    return false;
+}
+
 function init3DPreview() {
     const container = document.getElementById('model-preview');
     if (!container || renderer) return;
+
+    if (!detectWebGL()) {
+        return;
+    }
 
     scene = new THREE.Scene();
     
@@ -219,6 +240,23 @@ function updatePrice() {
 function initCalculatorListeners() {
     const fileInput = document.getElementById('file-input');
     const dropZone = document.getElementById('drop-zone');
+
+    // ── WebGL guard ──
+    if (!detectWebGL()) {
+        const warning = document.getElementById('webgl-warning');
+        if (warning && typeof translations !== 'undefined') {
+            warning.innerText = translations[currentLang].webglWarning;
+            warning.classList.remove('hidden');
+        }
+        if (dropZone) {
+            dropZone.classList.remove('cursor-pointer', 'hover:border-blue-500');
+            dropZone.classList.add('cursor-not-allowed', 'opacity-60');
+            const icon = dropZone.querySelector('i');
+            if (icon) icon.classList.replace('text-blue-500', 'text-gray-400');
+        }
+        if (fileInput) fileInput.disabled = true;
+        return;
+    }
 
     // 1. Společná funkce pro zpracování souboru
     function handleFile(file) {
