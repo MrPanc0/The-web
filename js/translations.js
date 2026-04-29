@@ -31,7 +31,8 @@ const translations = {
         lblAddPrint: "Přidat Tisk", lblAddModel: "Přidat Modelování", lblAddScan: "Přidat Skenování", 
         warnAddPrint: "Pro kalkulaci tisku vložte 3D model do kalkulačky na webu.", modalName: "Vaše jméno", modalEmail: "E-mail", modalNote: "Poznámka", modalSubmitBtn: "Odeslat poptávku",
         heroDesc: "Vyberte si službu, zjistěte okamžitě cenu a nechte zbytek na nás s maximální přesností.",
-        modalFileLabel: "Přiložit soubory (STEP, STL, OBJ...)", sumHourlyStr: " + hodinová sazba", valOnRequest: "Na dotaz", valNoModel: "Model nenahrán (přiložte manuálně)"
+        modalFileLabel: "Přiložit soubory (STEP, STL, OBJ...)", sumHourlyStr: " + hodinová sazba", valOnRequest: "Na dotaz", valNoModel: "Model nenahrán (přiložte manuálně)",
+        webglWarning: "Váš prohlížeč nepodporuje WebGL. 3D náhled a nahrávání modelů vyžaduje WebGL — povolte jej v nastavení prohlížeče nebo použijte moderní prohlížeč."
     },
     en: {
         pageTitle: "Cluster3D | Pro Services", navServices: "Services", navGallery: "Gallery", navFaq: "FAQ", navContact: "Contact",
@@ -52,7 +53,8 @@ const translations = {
         lblAddPrint: "Add Printing", lblAddModel: "Add Modeling", lblAddScan: "Add Scanning", 
         warnAddPrint: "For print calculation, upload a 3D model in the web calculator.", modalName: "Your Name", modalEmail: "Email", modalNote: "Note", modalSubmitBtn: "Submit Request",
         heroDesc: "Choose a service, get an instant price, and leave the rest to us with maximum precision.",
-        modalFileLabel: "Attach files (STEP, STL, OBJ...)", sumHourlyStr: " + hourly rate", valOnRequest: "On request", valNoModel: "Model not uploaded"
+        modalFileLabel: "Attach files (STEP, STL, OBJ...)", sumHourlyStr: " + hourly rate", valOnRequest: "On request", valNoModel: "Model not uploaded",
+        webglWarning: "Your browser does not support WebGL. 3D preview and model upload require WebGL — enable it in your browser settings or use a modern browser."
     }
 };
 
@@ -78,13 +80,16 @@ function applyTranslations() {
         'faq-q1', 'faq-a1', 'faq-q2', 'faq-a2', 'faq-q3', 'faq-a3', 'footer-desc', 'contact-title', 'social-title', 'modal-title', 
         'cart-title', 'cart-lbl-print', 'cart-lbl-model', 'cart-lbl-scan', 'cart-opt-scan-ir', 'cart-opt-scan-laser', 
         'cart-opt-scan-ir-ui', 'cart-opt-scan-laser-ui', 'scan-ir-desc', 'scan-laser-desc', 'lbl-add-print', 'lbl-add-model', 'lbl-add-scan', 'modal-name', 'modal-email', 
-        'modal-note', 'modal-submit-btn', 'modal-file-label'
+        'modal-note', 'modal-submit-btn', 'modal-file-label', 'webgl-warning'
     ];
     
     elements.forEach(id => {
         const el = document.getElementById(id);
         let key = id.replace(/-([a-z0-9])/g, g => g[1].toUpperCase());
-        if (el && t[key]) el.innerHTML = t[key];
+        if (el && t[key]) {
+            if (id === 'webgl-warning') el.innerText = t[key];
+            else el.innerHTML = t[key];
+        }
     });
 
     const setTxt = (id, key) => { if (document.getElementById(id)) document.getElementById(id).innerText = t[key]; };

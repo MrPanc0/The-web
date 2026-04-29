@@ -1,0 +1,19 @@
+# Archive / distribution
+*.zip
+
+# OS junk
+.DS_Store
+Thumbs.db
+.Directory
+
+# Editor temp files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
