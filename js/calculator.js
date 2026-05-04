@@ -329,9 +329,11 @@ function initCalculatorListeners() {
                                         );
                                     }
 
-                                    const geometry = new THREE.BufferGeometry();
+                                    let geometry = new THREE.BufferGeometry();
                                     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
                                     geometry.setIndex(indices);
+                                    // Tímto rozpojíme sdílené vrcholy a zbavíme se černých artefaktů
+                                    geometry = geometry.toNonIndexed(); 
                                     geometry.computeVertexNormals();
                                     availableObjects[id].geometry = geometry;
                                 }
