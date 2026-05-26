@@ -49,7 +49,7 @@ function updateCartUI() {
     }
     if (cartState.model) {
         sArr.push(t.cartLblModel); 
-        dArr.push(`${t.cartLblModel}: 350 Kč/h`); 
+        dArr.push(`${t.cartLblModel}: 500 Kč/h`); 
         hr = true;
     }
     if (cartState.scan) {
