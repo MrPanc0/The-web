@@ -54,7 +54,7 @@ function initUIListeners() {
 
 
 // =====================================================================
-// 3. TABY A POZADÍ (Kalkulačka)
+// 3. POZADÍ U KALKULAČKY
 // =====================================================================
 const bgImages = {
     'print': "url('print.jpg')", 
@@ -89,7 +89,7 @@ function switchTab(tabId) {
 
 
 // =====================================================================
-// 4. NEKONEČNÁ GALERIE (Kód pro posouvání obrázků)
+// 4. NEKONEČNÁ GALERIE 
 // =====================================================================
 const galleryImages = [
     'galerie/1.jpg',
